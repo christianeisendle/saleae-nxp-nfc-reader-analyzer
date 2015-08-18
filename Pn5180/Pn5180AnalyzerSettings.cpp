@@ -2,6 +2,7 @@
 
 #include <AnalyzerHelpers.h>
 #include <sstream>
+#include <cstring>
 
 Pn5180AnalyzerSettings::Pn5180AnalyzerSettings()
 :	mMosiChannel( UNDEFINED_CHANNEL ),

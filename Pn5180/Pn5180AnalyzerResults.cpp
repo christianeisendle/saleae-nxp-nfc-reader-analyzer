@@ -107,8 +107,8 @@ void Pn5180AnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 
 void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearTabularText();
 	Frame frame = GetFrame( frame_index );
-	ClearResultStrings();
 
 	bool mosi_used = true;
 	bool miso_used = true;
@@ -143,7 +143,7 @@ void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 		}
 	}
 
-	AddResultString( ss.str().c_str() );
+	AddTabularText( ss.str().c_str() );
 }
 
 void Pn5180AnalyzerResults::GeneratePacketTabularText( U64 /*packet_id*/, DisplayBase /*display_base*/ )  //unrefereced vars commented out to remove warnings.

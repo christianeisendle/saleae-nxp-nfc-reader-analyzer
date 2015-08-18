@@ -6,7 +6,7 @@
 #include "Pn5180SimulationDataGenerator.h"
 
 class Pn5180AnalyzerSettings;
-class Pn5180Analyzer : public Analyzer2
+class ANALYZER_EXPORT Pn5180Analyzer : public Analyzer2
 {
 public:
 	Pn5180Analyzer();
@@ -28,7 +28,8 @@ protected: //functions
 	bool WouldAdvancingTheClockToggleEnable();
 	void GetWord();
 
-	
+#pragma warning( push )
+#pragma warning( disable : 4251 ) //warning C4251: 'SerialAnalyzer::<...>' : class <...> needs to have dll-interface to be used by clients of class
 protected:  //vars
 	std::auto_ptr< Pn5180AnalyzerSettings > mSettings;
 	std::auto_ptr< Pn5180AnalyzerResults > mResults;
@@ -43,6 +44,8 @@ protected:  //vars
 	U64 mCurrentSample;
 	AnalyzerResults::MarkerType mArrowMarker;
 	std::vector<U64> mArrowLocations;
+
+#pragma warning( pop )
 };
 
 extern "C" ANALYZER_EXPORT const char* __cdecl GetAnalyzerName();
