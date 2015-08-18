@@ -3,4 +3,6 @@ Debug
 Release
 obj
 *.sdf
+*.opensdf
 *.suo
+ipch
