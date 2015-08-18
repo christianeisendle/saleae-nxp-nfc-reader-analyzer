@@ -28,12 +28,12 @@ void Pn5180AnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channe
 		if( channel == mSettings->mMosiChannel )
 		{
 			char number_str[128];
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
 			AddResultString( number_str );
 		}else
 		{
 			char number_str[128];
-			AnalyzerHelpers::GetNumberString( frame.mData2, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, number_str, 128 );
 			AddResultString( number_str );
 		}
 	}else
@@ -79,11 +79,11 @@ void Pn5180AnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 
 		char mosi_str[128] = "";
 		if( mosi_used == true )
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, mosi_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, mosi_str, 128 );
 
 		char miso_str[128] = "";
 		if( miso_used == true )
-			AnalyzerHelpers::GetNumberString( frame.mData2, display_base, mSettings->mBitsPerTransfer, miso_str, 128 );
+			AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, miso_str, 128 );
 
 		U64 packet_id = GetPacketContainingFrameSequential( i ); 
 		if( packet_id != INVALID_RESULT_INDEX )
@@ -121,11 +121,11 @@ void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 
 	char mosi_str[128];
 	if( mosi_used == true )
-		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, mosi_str, 128 );
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, mosi_str, 128 );
 
 	char miso_str[128];
 	if( miso_used == true )
-		AnalyzerHelpers::GetNumberString( frame.mData2, display_base, mSettings->mBitsPerTransfer, miso_str, 128 );
+		AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, miso_str, 128 );
 
 	std::stringstream ss;
 

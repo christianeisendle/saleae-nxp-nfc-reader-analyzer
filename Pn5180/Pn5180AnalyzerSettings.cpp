@@ -9,8 +9,8 @@ Pn5180AnalyzerSettings::Pn5180AnalyzerSettings()
 	mMisoChannel( UNDEFINED_CHANNEL ),
 	mClockChannel( UNDEFINED_CHANNEL ),
 	mEnableChannel( UNDEFINED_CHANNEL ),
+	mBusyChannel( UNDEFINED_CHANNEL ),
 	mShiftOrder( AnalyzerEnums::MsbFirst ),
-	mBitsPerTransfer( 8 ),
 	mClockInactiveState( BIT_LOW ),
 	mDataValidEdge( AnalyzerEnums::LeadingEdge ), 
 	mEnableActiveState( BIT_LOW )
@@ -34,26 +34,17 @@ Pn5180AnalyzerSettings::Pn5180AnalyzerSettings()
 	mEnableChannelInterface->SetChannel( mEnableChannel );
 	mEnableChannelInterface->SetSelectionOfNoneIsAllowed( true );
 
+	mBusyChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
+	mBusyChannelInterface->SetTitleAndTooltip( "BUSY", "Busy (Device busy processing current frame)" );
+	mBusyChannelInterface->SetChannel( mBusyChannel );
+	mBusyChannelInterface->SetSelectionOfNoneIsAllowed( true );
+
 	mShiftOrderInterface.reset( new AnalyzerSettingInterfaceNumberList() );
 	mShiftOrderInterface->SetTitleAndTooltip( "", "" );
 	mShiftOrderInterface->AddNumber( AnalyzerEnums::MsbFirst, "Most Significant Bit First (Standard)", "" );
 	mShiftOrderInterface->AddNumber( AnalyzerEnums::LsbFirst, "Least Significant Bit First", "" );
 	mShiftOrderInterface->SetNumber( mShiftOrder );
 
-	mBitsPerTransferInterface.reset( new AnalyzerSettingInterfaceNumberList() );
-	mBitsPerTransferInterface->SetTitleAndTooltip( "", "" );
-	for( U32 i=1; i<=64; i++ )
-	{
-		std::stringstream ss;
-
-		if( i == 8 )
-			ss << "8 Bits per Transfer (Standard)";
-		else
-			ss << i << " Bits per Transfer";
-		
-		mBitsPerTransferInterface->AddNumber( i, ss.str().c_str(), "" );
-	}
-	mBitsPerTransferInterface->SetNumber( mBitsPerTransfer );
 
 	mClockInactiveStateInterface.reset( new AnalyzerSettingInterfaceNumberList() );
 	mClockInactiveStateInterface->SetTitleAndTooltip( "", "" );
@@ -78,8 +69,8 @@ Pn5180AnalyzerSettings::Pn5180AnalyzerSettings()
 	AddInterface( mMisoChannelInterface.get() );
 	AddInterface( mClockChannelInterface.get() );
 	AddInterface( mEnableChannelInterface.get() );
+	AddInterface( mBusyChannelInterface.get() );
 	AddInterface( mShiftOrderInterface.get() );
-	AddInterface( mBitsPerTransferInterface.get() );
 	AddInterface( mClockInactiveStateInterface.get() );
 	AddInterface( mDataValidEdgeInterface.get() );
 	AddInterface( mEnableActiveStateInterface.get() );
@@ -95,6 +86,7 @@ Pn5180AnalyzerSettings::Pn5180AnalyzerSettings()
 	AddChannel( mMisoChannel, "MISO", false );
 	AddChannel( mClockChannel, "CLOCK", false );
 	AddChannel( mEnableChannel, "ENABLE", false );
+	AddChannel( mBusyChannel, "BUSY", false );
 }
 
 Pn5180AnalyzerSettings::~Pn5180AnalyzerSettings()
@@ -130,9 +122,9 @@ bool Pn5180AnalyzerSettings::SetSettingsFromInterfaces()
 	mMisoChannel = mMisoChannelInterface->GetChannel();
 	mClockChannel = mClockChannelInterface->GetChannel();
 	mEnableChannel = mEnableChannelInterface->GetChannel();
+	mBusyChannel = mBusyChannelInterface->GetChannel();
 
 	mShiftOrder =			(AnalyzerEnums::ShiftOrder) U32( mShiftOrderInterface->GetNumber() );
-	mBitsPerTransfer =		U32( mBitsPerTransferInterface->GetNumber() );
 	mClockInactiveState =	(BitState) U32( mClockInactiveStateInterface->GetNumber() );
 	mDataValidEdge =		(AnalyzerEnums::Edge)  U32( mDataValidEdgeInterface->GetNumber() );
 	mEnableActiveState =	(BitState) U32( mEnableActiveStateInterface->GetNumber() );
@@ -142,6 +134,7 @@ bool Pn5180AnalyzerSettings::SetSettingsFromInterfaces()
 	AddChannel( mMisoChannel, "MISO", mMisoChannel != UNDEFINED_CHANNEL );
 	AddChannel( mClockChannel, "CLOCK", mClockChannel != UNDEFINED_CHANNEL );
 	AddChannel( mEnableChannel, "ENABLE", mEnableChannel != UNDEFINED_CHANNEL );
+	AddChannel( mBusyChannel, "BUSY", mBusyChannel != UNDEFINED_CHANNEL );
 
 	return true;
 }
@@ -160,8 +153,8 @@ void Pn5180AnalyzerSettings::LoadSettings( const char* settings )
 	text_archive >>  mMisoChannel;
 	text_archive >>  mClockChannel;
 	text_archive >>  mEnableChannel;
+	text_archive >>  mBusyChannel;
 	text_archive >>  *(U32*)&mShiftOrder;
-	text_archive >>  mBitsPerTransfer;
 	text_archive >>  *(U32*)&mClockInactiveState;
 	text_archive >>  *(U32*)&mDataValidEdge;
 	text_archive >>  *(U32*)&mEnableActiveState;
@@ -175,6 +168,7 @@ void Pn5180AnalyzerSettings::LoadSettings( const char* settings )
 	AddChannel( mMisoChannel, "MISO", mMisoChannel != UNDEFINED_CHANNEL );
 	AddChannel( mClockChannel, "CLOCK", mClockChannel != UNDEFINED_CHANNEL );
 	AddChannel( mEnableChannel, "ENABLE", mEnableChannel != UNDEFINED_CHANNEL );
+	AddChannel( mBusyChannel, "BUSY", mBusyChannel != UNDEFINED_CHANNEL );
 
 	UpdateInterfacesFromSettings();
 }
@@ -188,8 +182,8 @@ const char* Pn5180AnalyzerSettings::SaveSettings()
 	text_archive <<  mMisoChannel;
 	text_archive <<  mClockChannel;
 	text_archive <<  mEnableChannel;
+	text_archive <<  mBusyChannel;
 	text_archive <<  mShiftOrder;
-	text_archive <<  mBitsPerTransfer;
 	text_archive <<  mClockInactiveState;
 	text_archive <<  mDataValidEdge;
 	text_archive <<  mEnableActiveState;
@@ -203,8 +197,8 @@ void Pn5180AnalyzerSettings::UpdateInterfacesFromSettings()
 	mMisoChannelInterface->SetChannel( mMisoChannel );
 	mClockChannelInterface->SetChannel( mClockChannel );
 	mEnableChannelInterface->SetChannel( mEnableChannel );
+	mBusyChannelInterface->SetChannel( mBusyChannel );
 	mShiftOrderInterface->SetNumber( mShiftOrder );
-	mBitsPerTransferInterface->SetNumber( mBitsPerTransfer );
 	mClockInactiveStateInterface->SetNumber( mClockInactiveState );
 	mDataValidEdgeInterface->SetNumber( mDataValidEdge );
 	mEnableActiveStateInterface->SetNumber( mEnableActiveState );

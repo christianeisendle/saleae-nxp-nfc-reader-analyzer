@@ -20,8 +20,8 @@ public:
 	Channel mMisoChannel;
 	Channel mClockChannel;
 	Channel mEnableChannel;
+	Channel mBusyChannel;
 	AnalyzerEnums::ShiftOrder mShiftOrder;
-	U32 mBitsPerTransfer;
 	BitState mClockInactiveState;
 	AnalyzerEnums::Edge mDataValidEdge;
 	BitState mEnableActiveState;
@@ -32,8 +32,8 @@ protected:
 	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mMisoChannelInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mClockChannelInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mEnableChannelInterface;
+	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mBusyChannelInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mShiftOrderInterface;
-	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mBitsPerTransferInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mClockInactiveStateInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mDataValidEdgeInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceNumberList > mEnableActiveStateInterface;

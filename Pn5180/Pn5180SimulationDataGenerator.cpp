@@ -33,6 +33,11 @@ void Pn5180SimulationDataGenerator::Initialize( U32 simulation_sample_rate, Pn51
 	else
 		mEnable = NULL;
 
+	if( settings->mBusyChannel != UNDEFINED_CHANNEL )
+		mEnable = mPn5180SimulationChannels.Add( settings->mBusyChannel, mSimulationSampleRateHz, BIT_LOW );
+	else
+		mEnable = NULL;
+
 	mPn5180SimulationChannels.AdvanceAll( mClockGenerator.AdvanceByHalfPeriod( 10.0 ) ); //insert 10 bit-periods of idle
 
 	mValue = 0;
@@ -97,10 +102,10 @@ void Pn5180SimulationDataGenerator::CreatePn5180Transaction()
 
 void Pn5180SimulationDataGenerator::OutputWord_CPHA0( U64 mosi_data, U64 miso_data )
 {
-	BitExtractor mosi_bits( mosi_data, mSettings->mShiftOrder, mSettings->mBitsPerTransfer );
-	BitExtractor miso_bits( miso_data, mSettings->mShiftOrder, mSettings->mBitsPerTransfer );
+	BitExtractor mosi_bits( mosi_data, mSettings->mShiftOrder, 8 );
+	BitExtractor miso_bits( miso_data, mSettings->mShiftOrder, 8 );
 
-	U32 count = mSettings->mBitsPerTransfer;
+	U32 count = 8;
 	for( U32 i=0; i<count; i++ )
 	{
 		if( mMosi != NULL )
@@ -127,10 +132,10 @@ void Pn5180SimulationDataGenerator::OutputWord_CPHA0( U64 mosi_data, U64 miso_da
 
 void Pn5180SimulationDataGenerator::OutputWord_CPHA1( U64 mosi_data, U64 miso_data )
 {
-	BitExtractor mosi_bits( mosi_data, mSettings->mShiftOrder, mSettings->mBitsPerTransfer );
-	BitExtractor miso_bits( miso_data, mSettings->mShiftOrder, mSettings->mBitsPerTransfer );
+	BitExtractor mosi_bits( mosi_data, mSettings->mShiftOrder, 8 );
+	BitExtractor miso_bits( miso_data, mSettings->mShiftOrder, 8 );
 
-	U32 count = mSettings->mBitsPerTransfer;
+	U32 count = 8;
 	for( U32 i=0; i<count; i++ )
 	{
 		mClock->Transition();  //data invalid

@@ -32,5 +32,6 @@ protected: //Pn5180 specific
 	SimulationChannelDescriptor* mMosi;
 	SimulationChannelDescriptor* mClock;
 	SimulationChannelDescriptor* mEnable;
+	SimulationChannelDescriptor* mBusy;
 };
 #endif //Pn5180_SIMULATION_DATA_GENERATOR

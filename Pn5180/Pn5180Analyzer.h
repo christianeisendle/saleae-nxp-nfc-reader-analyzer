@@ -40,6 +40,7 @@ protected:  //vars
 	AnalyzerChannelData* mMiso;
 	AnalyzerChannelData* mClock;
 	AnalyzerChannelData* mEnable;
+	AnalyzerChannelData* mBusy;
 
 	U64 mCurrentSample;
 	AnalyzerResults::MarkerType mArrowMarker;

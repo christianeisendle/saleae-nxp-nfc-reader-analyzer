@@ -13,7 +13,8 @@ Pn5180Analyzer::Pn5180Analyzer()
 	mMosi( NULL ),
 	mMiso( NULL ),
 	mClock( NULL ),
-	mEnable( NULL )
+	mEnable( NULL ),
+	mBusy( NULL )
 {	
 	SetAnalyzerSettings( mSettings.get() );
 }
@@ -101,6 +102,11 @@ void Pn5180Analyzer::Setup()
 	else
 		mEnable = NULL;
 
+	if( mSettings->mBusyChannel != UNDEFINED_CHANNEL )
+		mBusy = GetAnalyzerChannelData( mSettings->mBusyChannel );
+	else
+		mBusy = NULL;
+
 }
 
 void Pn5180Analyzer::AdvanceToActiveEnableEdge()
@@ -176,7 +182,7 @@ void Pn5180Analyzer::GetWord()
 {
 	//we're assuming we come into this function with the clock in the idle state;
 
-	U32 bits_per_transfer = mSettings->mBitsPerTransfer;
+	U32 bits_per_transfer = 8;
 
 	DataBuilder mosi_result;
 	U64 mosi_word = 0;
