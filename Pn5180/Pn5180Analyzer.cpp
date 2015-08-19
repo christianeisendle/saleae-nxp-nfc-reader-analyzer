@@ -33,6 +33,8 @@ void Pn5180Analyzer::SetupResults()
 		mResults->AddChannelBubblesWillAppearOn( mSettings->mMosiChannel );
 	if( mSettings->mMisoChannel != UNDEFINED_CHANNEL )
 		mResults->AddChannelBubblesWillAppearOn( mSettings->mMisoChannel );
+	if( mSettings->mEnableChannel != UNDEFINED_CHANNEL )
+		mResults->AddChannelBubblesWillAppearOn( mSettings->mEnableChannel );
 }
 
 void Pn5180Analyzer::WorkerThread()
@@ -60,6 +62,8 @@ void Pn5180Analyzer::AdvanceToActiveEnableEdgeWithCorrectClockPolarity()
 		if( IsInitialClockPolarityCorrect() == true )  //if false, this function moves to the next active enable edge.
 			break;
 	}
+	mInstructionStartSample = mEnable->GetSampleNumber();
+	mIsLastFrame = true;
 }
 
 void Pn5180Analyzer::Setup()
@@ -284,13 +288,42 @@ void Pn5180Analyzer::GetWord()
 	result_frame.mEndingSampleInclusive = mClock->GetSampleNumber();
 	result_frame.mData1 = mosi_word;
 	result_frame.mData2 = miso_word;
-	result_frame.mFlags = 0;
+	if (mIsLastFrame)
+	{
+		/* previous frame was last frame, so with this frame a new instruction starts */
+		mIsLastFrame = false;
+		result_frame.mFlags = Pn5180_NEW_FRAME_FLAG;
+		mInstructionCode = mosi_word;
+	}
+	else
+	{
+		result_frame.mFlags = 0;
+	}
+	
 	mResults->AddFrame( result_frame );
 	
 	mResults->CommitResults();
 
 	if( need_reset == true )
 		AdvanceToActiveEnableEdgeWithCorrectClockPolarity();
+	else if( WouldAdvancingTheClockToggleEnable() == true )
+	{
+		mIsLastFrame = true;
+		
+		mEnable->AdvanceToNextEdge();
+		U64 instruction_end_sample = mEnable->GetSampleNumber();
+		
+		Frame instruction_frame;
+		instruction_frame.mStartingSampleInclusive = mInstructionStartSample;
+		instruction_frame.mEndingSampleInclusive = instruction_end_sample;
+		instruction_frame.mFlags = Pn5180_INSTRUCTION_FLAG; 
+		instruction_frame.mData1 = mInstructionCode;
+		mEnable->AdvanceToNextEdge();
+		mInstructionStartSample = mEnable->GetSampleNumber();
+		mResults->AddFrame( instruction_frame );
+	
+		mResults->CommitResults();
+	}
 }
 
 bool Pn5180Analyzer::NeedsRerun()

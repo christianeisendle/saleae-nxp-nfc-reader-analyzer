@@ -42,7 +42,10 @@ protected:  //vars
 	AnalyzerChannelData* mEnable;
 	AnalyzerChannelData* mBusy;
 
+	bool mIsLastFrame;
 	U64 mCurrentSample;
+	U64 mInstructionCode;
+	U64 mInstructionStartSample;
 	AnalyzerResults::MarkerType mArrowMarker;
 	std::vector<U64> mArrowLocations;
 

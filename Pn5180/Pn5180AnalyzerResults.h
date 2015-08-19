@@ -4,6 +4,8 @@
 #include <AnalyzerResults.h>
 
 #define Pn5180_ERROR_FLAG ( 1 << 0 )
+#define Pn5180_NEW_FRAME_FLAG ( 1 << 1 )
+#define Pn5180_INSTRUCTION_FLAG ( 1 << 2 )
 
 class Pn5180Analyzer;
 class Pn5180AnalyzerSettings;

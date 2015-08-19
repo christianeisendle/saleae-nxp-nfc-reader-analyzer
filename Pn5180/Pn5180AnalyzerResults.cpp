@@ -6,6 +6,15 @@
 #include <sstream>
 
 #pragma warning(disable: 4996) //warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
+#define NUM_INSTRUCTIONS 5U
+const char* Pn5180InstructionCodes[NUM_INSTRUCTIONS] = 
+{
+	"WriteRegister",
+	"WriteRegisterOrMask",
+	"WriteRegisterAndMask",
+	"WriteMultipleRegister",
+	"ReadRegister",
+};
 
 Pn5180AnalyzerResults::Pn5180AnalyzerResults( Pn5180Analyzer* analyzer, Pn5180AnalyzerSettings* settings )
 :	AnalyzerResults(),
@@ -22,25 +31,45 @@ void Pn5180AnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channe
 {
 	ClearResultStrings();
 	Frame frame = GetFrame( frame_index );
-
-	if( ( frame.mFlags & Pn5180_ERROR_FLAG ) == 0 )
+	if(  frame.mFlags & Pn5180_INSTRUCTION_FLAG )
 	{
-		if( channel == mSettings->mMosiChannel )
+		if ( channel == mSettings->mEnableChannel )
 		{
-			char number_str[128];
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-			AddResultString( number_str );
+			if (frame.mData1 > NUM_INSTRUCTIONS)
+			{
+				char number_str[128];
+				AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+				AddResultString( number_str );
+				AddResultString( "Unknown Instruction" );
+			}
+			else
+			{
+				AddResultString( Pn5180InstructionCodes[frame.mData1] );
+			}
+		}
+	}
+	else
+	{
+		if( ( frame.mFlags & Pn5180_ERROR_FLAG ) == 0 )
+		{
+			if( channel == mSettings->mMosiChannel )
+			{
+				char number_str[128];
+				AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+				AddResultString( number_str );
+
+			}else
+			{
+				char number_str[128];
+				AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, number_str, 128 );
+				AddResultString( number_str );
+			}
 		}else
 		{
-			char number_str[128];
-			AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, number_str, 128 );
-			AddResultString( number_str );
+				AddResultString( "Error" );
+				AddResultString( "Settings mismatch" );
+				AddResultString( "The initial (idle) state of the CLK line does not match the settings." );
 		}
-	}else
-	{
-			AddResultString( "Error" );
-			AddResultString( "Settings mismatch" );
-			AddResultString( "The initial (idle) state of the CLK line does not match the settings." );
 	}
 }
 
@@ -110,36 +139,57 @@ void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
     ClearTabularText();
 	Frame frame = GetFrame( frame_index );
 
-	bool mosi_used = true;
-	bool miso_used = true;
-
-	if( mSettings->mMosiChannel == UNDEFINED_CHANNEL )
-		mosi_used = false;
-
-	if( mSettings->mMisoChannel == UNDEFINED_CHANNEL )
-		miso_used = false;
-
-	char mosi_str[128];
-	if( mosi_used == true )
-		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, mosi_str, 128 );
-
-	char miso_str[128];
-	if( miso_used == true )
-		AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, miso_str, 128 );
-
+	
 	std::stringstream ss;
 
-	if( mosi_used == true && miso_used == true )
+	if(  frame.mFlags & Pn5180_INSTRUCTION_FLAG  )
 	{
-		ss << "MOSI: " << mosi_str << ";  MISO: " << miso_str;
-	}else
-	{
-		if( mosi_used == true )
+		char instr_str[128];
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, instr_str, 128 );
+
+		if (frame.mData1 > NUM_INSTRUCTIONS)
 		{
-			ss << "MOSI: " << mosi_str;
+			ss << "Unknown Instruction (";
+			ss << instr_str;
+			ss << ")";
+		}
+		else
+		{
+			ss << Pn5180InstructionCodes[frame.mData1];
+		}
+	}
+	else
+	{
+
+		bool mosi_used = true;
+		bool miso_used = true;
+
+		if( mSettings->mMosiChannel == UNDEFINED_CHANNEL )
+			mosi_used = false;
+
+		if( mSettings->mMisoChannel == UNDEFINED_CHANNEL )
+			miso_used = false;
+
+		char mosi_str[128];
+		if( mosi_used == true )
+			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, mosi_str, 128 );
+
+		char miso_str[128];
+		if( miso_used == true )
+			AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, miso_str, 128 );
+
+		if( mosi_used == true && miso_used == true )
+		{
+			ss << "MOSI: " << mosi_str << ";  MISO: " << miso_str;
 		}else
 		{
-			ss << "MISO: " << miso_str;
+			if( mosi_used == true )
+			{
+				ss << "MOSI: " << mosi_str;
+			}else
+			{
+				ss << "MISO: " << miso_str;
+			}
 		}
 	}
 
