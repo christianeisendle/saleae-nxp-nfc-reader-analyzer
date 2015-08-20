@@ -318,8 +318,7 @@ void Pn5180Analyzer::GetWord()
 		instruction_frame.mEndingSampleInclusive = instruction_end_sample;
 		instruction_frame.mFlags = Pn5180_INSTRUCTION_FLAG; 
 		instruction_frame.mData1 = mInstructionCode;
-		mEnable->AdvanceToNextEdge();
-		mInstructionStartSample = mEnable->GetSampleNumber();
+		mInstructionStartSample = mEnable->GetSampleOfNextEdge();
 		mResults->AddFrame( instruction_frame );
 	
 		mResults->CommitResults();
