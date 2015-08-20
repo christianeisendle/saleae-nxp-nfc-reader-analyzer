@@ -6,20 +6,23 @@
 #include <sstream>
 
 #pragma warning(disable: 4996) //warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
-#define NUM_INSTRUCTIONS 5U
+#define NUM_INSTRUCTIONS 26U
 const char* Pn5180InstructionCodes[NUM_INSTRUCTIONS] = 
 {
-	"WriteRegister",
-	"WriteRegisterOrMask",
-	"WriteRegisterAndMask",
-	"WriteMultipleRegister",
-	"ReadRegister",
+	"SET_INSTR_WRITE_REGISTER",	"SET_INSTR_WRITE_REGISTER_OR_MASK",	"SET_INSTR_WRITE_REGISTER_AND_MASK",	"SET_INSTR_WRITE_REGISTER_MULTIPLE",	"GET_INSTR_READ_REGISTER",	"GET_INSTR_READ_REGISTER_MULTIPLE",	"SET_INSTR_WRITE_E2PROM",	"GET_INSTR_READ_E2PROM",	"SET_INSTR_WRITE_TX_DATA",	"SET_INSTR_SEND_DATA",	"GET_INSTR_RETRIEVE_RX_DATA",	"SET_INSTR_SWITCH_MODE",	"GET_INSTR_MFC_AUTHENTICATE",	"SET_INSTR_EPC_GEN2_INVENTORY",	"SET_INSTR_EPC_GEN2_RESUME_INVENTORY",	"GET_INSTR_EPC_GEN2_RETRIEVE_INVENTORY_RESULT_SIZE",	"GET_INSTR_EPC_GEN2_RETRIEVE_INVENTORY_RESULT",	"SET_INSTR_LOAD_RF_CONFIGURATION",	"SET_INSTR_UPDATE_RF_CONFIGURATION",	"GET_INSTR_RETRIEVE_RF_CONFIGURATION_SIZE",	"GET_INSTR_RETRIEVE_RF_CONFIGURATION",	"SET_INSTR_CONFIGURE_TESTBUS (RFU)",
+	"SET_INSTR_RF_ON",
+	"SET_INSTR_RF_OFF",
+	"SET_CONFIGURE_TESTBUS_DIGITAL",
+	"SET_CONFIGURE_TESTBUS_ANALOG"
+
 };
 
 Pn5180AnalyzerResults::Pn5180AnalyzerResults( Pn5180Analyzer* analyzer, Pn5180AnalyzerSettings* settings )
 :	AnalyzerResults(),
 	mSettings( settings ),
-	mAnalyzer( analyzer )
+	mAnalyzer( analyzer ),
+	mCnt( 0 ),
+	mOldFrameId( 0 )
 {
 }
 
@@ -139,7 +142,6 @@ void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
     ClearTabularText();
 	Frame frame = GetFrame( frame_index );
 
-	
 	std::stringstream ss;
 
 	if(  frame.mFlags & Pn5180_INSTRUCTION_FLAG  )
@@ -157,10 +159,37 @@ void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 		{
 			ss << Pn5180InstructionCodes[frame.mData1];
 		}
+
 	}
 	else
 	{
+		char mosi_str[128];
+		
+		AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, mosi_str, 128 );
 
+		if(  frame.mFlags & Pn5180_NEW_FRAME_FLAG  )
+		{
+			mCnt = 0;
+			ss << "Instruction: ";
+			ss << mosi_str;
+		}
+		else
+		{
+			ss << "Payload[";
+			ss << mCnt-1;
+			ss << "]: ";
+			ss << mosi_str;
+			if (mOldFrameId < frame_index)
+			{
+				mCnt++;
+				mOldFrameId = frame_index;
+			}
+		}
+
+		
+
+		
+#if 0
 		bool mosi_used = true;
 		bool miso_used = true;
 
@@ -191,6 +220,7 @@ void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 				ss << "MISO: " << miso_str;
 			}
 		}
+#endif
 	}
 
 	AddTabularText( ss.str().c_str() );
@@ -206,4 +236,5 @@ void Pn5180AnalyzerResults::GenerateTransactionTabularText( U64 /*transaction_id
 {
 	ClearResultStrings();
 	AddResultString( "not supported" );
+
 }

@@ -28,6 +28,8 @@ protected: //functions
 protected:  //vars
 	Pn5180AnalyzerSettings* mSettings;
 	Pn5180Analyzer* mAnalyzer;
+	U32 mCnt;
+	U64 mOldFrameId;
 };
 
 #endif //Pn5180_ANALYZER_RESULTS
