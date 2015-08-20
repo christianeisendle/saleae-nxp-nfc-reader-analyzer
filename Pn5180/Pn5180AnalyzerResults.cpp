@@ -185,42 +185,6 @@ void Pn5180AnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
 				mOldFrameId = frame_index;
 			}
 		}
-
-		
-
-		
-#if 0
-		bool mosi_used = true;
-		bool miso_used = true;
-
-		if( mSettings->mMosiChannel == UNDEFINED_CHANNEL )
-			mosi_used = false;
-
-		if( mSettings->mMisoChannel == UNDEFINED_CHANNEL )
-			miso_used = false;
-
-		char mosi_str[128];
-		if( mosi_used == true )
-			AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, mosi_str, 128 );
-
-		char miso_str[128];
-		if( miso_used == true )
-			AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, miso_str, 128 );
-
-		if( mosi_used == true && miso_used == true )
-		{
-			ss << "MOSI: " << mosi_str << ";  MISO: " << miso_str;
-		}else
-		{
-			if( mosi_used == true )
-			{
-				ss << "MOSI: " << mosi_str;
-			}else
-			{
-				ss << "MISO: " << miso_str;
-			}
-		}
-#endif
 	}
 
 	AddTabularText( ss.str().c_str() );
