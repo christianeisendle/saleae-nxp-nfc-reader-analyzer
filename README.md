@@ -1,5 +1,5 @@
-# saleae-nxp-pn5180-analyzer
-Saleae Logic Analyer Plugin for NXPs PN5180
+# saleae-nxp-nfc-reader-analyzer
+Saleae Logic Analyer Plugin for NXP NFC Reader ICs
 
 
 ## Requirements
